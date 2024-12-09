@@ -12,17 +12,26 @@ function main() {
     leftList.sort((a, b) => a - b);
     rightList.sort((a, b) => a - b);
 
+    //part 1
     const distance = calculateDistance(leftList, rightList, 0);
-    console.log(distance);
+    //part 2
+    const similaritiy = calculateSimilaritiy(leftList, rightList, 0);
   });
 }
 
-function calculateDistance(leftList, rightList, startingPoint) {
+function calculateDistance(leftList, rightList, value) {
   for (let i = 0; i < leftList.length; i++) {
-    startingPoint += Math.abs(leftList[i] - rightList[i]);
+    value += Math.abs(leftList[i] - rightList[i]);
   }
+  return value;
+}
 
-  return startingPoint;
+function calculateSimilaritiy(leftList, rightList, value) {
+  for (let i = 0; i < leftList.length; i++) {
+    value +=
+      leftList[i] * rightList.filter((item) => item === leftList[i]).length;
+  }
+  return value;
 }
 
 main();
