@@ -32,13 +32,12 @@ function main() {
         break;
       }
     }
-    map[guardLocation[0]][guardLocation[1]] = ".";
     let trackMap = map.map((innerArray) => innerArray.slice());
     trackMap[guardLocation[0]][guardLocation[1]] = "X";
 
-    trackMap = moveGuard(guardLocation, map, trackMap);
-
+    trackMap = moveGuard(guardLocation[0], guardLocation[1], map, trackMap);
     let countX = 0;
+    //part 1
     for (let i = 0; i < trackMap.length; i++) {
       for (let j = 0; j < trackMap[i].length; j++) {
         if (trackMap[i][j] === "X") {
@@ -46,15 +45,40 @@ function main() {
         }
       }
     }
+    let possibleObsCount = 0;
     console.log(countX);
+
+    //part 2
+    for (let i = 0; i < trackMap.length; i++) {
+      for (let j = 0; j < trackMap[i].length; j++) {
+        if (trackMap[i][j] === "X") {
+          let obstacleTrial = map.map((innerArray) => innerArray.slice());
+          obstacleTrial[i][j] = "#";
+          if (
+            possibleObstacle(
+              guardLocation[0],
+              guardLocation[1],
+              obstacleTrial,
+              obstacleTrial
+            )
+          ) {
+            possibleObsCount++;
+          }
+        }
+      }
+    }
+    console.log(possibleObsCount);
   });
 }
 
-function moveGuard(guardLocation, map, trackMap) {
+//part 1
+function moveGuard(i, j, map, trackMap) {
   const width = map.length;
   const length = map[0].length;
   let moveCount = 0;
   let direction = "up";
+  const guardLocation = [i, j];
+
   while (
     guardLocation[0] > 0 &&
     guardLocation[0] < width &&
@@ -66,7 +90,10 @@ function moveGuard(guardLocation, map, trackMap) {
       if (nextLocation[0] < 0) {
         break;
       }
-      if (map[nextLocation[0]][nextLocation[1]] === ".") {
+      if (
+        map[nextLocation[0]][nextLocation[1]] === "." ||
+        map[nextLocation[0]][nextLocation[1]] === "^"
+      ) {
         guardLocation[0]--;
         trackMap[nextLocation[0]][nextLocation[1]] = "X";
         moveCount++;
@@ -78,7 +105,10 @@ function moveGuard(guardLocation, map, trackMap) {
       if (nextLocation[1] >= width) {
         break;
       }
-      if (map[nextLocation[0]][nextLocation[1]] === ".") {
+      if (
+        map[nextLocation[0]][nextLocation[1]] === "." ||
+        map[nextLocation[0]][nextLocation[1]] === "^"
+      ) {
         guardLocation[1]++;
         trackMap[nextLocation[0]][nextLocation[1]] = "X";
         moveCount++;
@@ -90,7 +120,10 @@ function moveGuard(guardLocation, map, trackMap) {
       if (nextLocation[0] >= length) {
         break;
       }
-      if (map[nextLocation[0]][nextLocation[1]] === ".") {
+      if (
+        map[nextLocation[0]][nextLocation[1]] === "." ||
+        map[nextLocation[0]][nextLocation[1]] === "^"
+      ) {
         guardLocation[0]++;
         trackMap[nextLocation[0]][nextLocation[1]] = "X";
         moveCount++;
@@ -102,7 +135,10 @@ function moveGuard(guardLocation, map, trackMap) {
       if (nextLocation[1] < 0) {
         break;
       }
-      if (map[nextLocation[0]][nextLocation[1]] === ".") {
+      if (
+        map[nextLocation[0]][nextLocation[1]] === "." ||
+        map[nextLocation[0]][nextLocation[1]] === "^"
+      ) {
         guardLocation[1]--;
         trackMap[nextLocation[0]][nextLocation[1]] = "X";
         moveCount++;
@@ -112,6 +148,80 @@ function moveGuard(guardLocation, map, trackMap) {
     }
   }
   return trackMap;
+}
+
+//part 2
+
+function possibleObstacle(i, j, map, trackMap) {
+  const width = map.length;
+  const length = map[0].length;
+  let direction = "up";
+  const guardLocation = [i, j];
+  while (
+    guardLocation[0] > 0 &&
+    guardLocation[0] < width &&
+    guardLocation[1] > 0 &&
+    guardLocation[1] < length
+  ) {
+    if (direction === "up") {
+      let nextLocation = [guardLocation[0] - 1, guardLocation[1]];
+      if (nextLocation[0] < 0) {
+        break;
+      }
+      if (map[nextLocation[0]][nextLocation[1]] !== "#") {
+        guardLocation[0]--;
+        if (trackMap[nextLocation[0]][nextLocation[1]] === "U") {
+          return true;
+        }
+        trackMap[nextLocation[0]][nextLocation[1]] = "U";
+      } else {
+        direction = changeDirection(direction);
+      }
+    } else if (direction === "right") {
+      let nextLocation = [guardLocation[0], guardLocation[1] + 1];
+      if (nextLocation[1] >= width) {
+        break;
+      }
+      if (map[nextLocation[0]][nextLocation[1]] !== "#") {
+        guardLocation[1]++;
+        if (trackMap[nextLocation[0]][nextLocation[1]] === "R") {
+          return true;
+        }
+        trackMap[nextLocation[0]][nextLocation[1]] = "R";
+      } else {
+        direction = changeDirection(direction);
+      }
+    } else if (direction === "down") {
+      let nextLocation = [guardLocation[0] + 1, guardLocation[1]];
+      if (nextLocation[0] >= length) {
+        break;
+      }
+      if (map[nextLocation[0]][nextLocation[1]] !== "#") {
+        guardLocation[0]++;
+        if (trackMap[nextLocation[0]][nextLocation[1]] === "D") {
+          return true;
+        }
+        trackMap[nextLocation[0]][nextLocation[1]] = "D";
+      } else {
+        direction = changeDirection(direction);
+      }
+    } else if (direction === "left") {
+      let nextLocation = [guardLocation[0], guardLocation[1] - 1];
+      if (nextLocation[1] < 0) {
+        break;
+      }
+      if (map[nextLocation[0]][nextLocation[1]] !== "#") {
+        guardLocation[1]--;
+        if (trackMap[nextLocation[0]][nextLocation[1]] === "L") {
+          return true;
+        }
+        trackMap[nextLocation[0]][nextLocation[1]] = "L";
+      } else {
+        direction = changeDirection(direction);
+      }
+    }
+  }
+  return false;
 }
 
 main();
